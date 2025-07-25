@@ -289,7 +289,7 @@
                 <label for="noteInput">Note:</label>
                 <input type="text" id="noteInput" placeholder="Enter your investment note..." />
                 <label for="investedInput">Invested:</label>
-                <input type="number" id="investedInput" placeholder="Amount invested" step="0.01" />
+                <input type="text" id="investedInput" placeholder="Amount invested" />
             </div>
             
             <div class="button-group">
@@ -337,14 +337,45 @@
             });
         }
 
+        // Format number with commas
+        function formatNumberWithCommas(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Remove commas from string and convert to number
+        function parseNumberFromString(str) {
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        // Format currency display (no decimals for whole numbers)
         function formatCurrency(amount) {
-            // If the amount is a whole number, display without decimals
             if (amount % 1 === 0) {
-                return `$${amount.toLocaleString()}`;
+                // Whole number - no decimals
+                return `$${formatNumberWithCommas(amount)}`;
             } else {
-                // If it has decimals, show up to 2 decimal places
-                return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                // Has decimals - show 2 decimal places
+                return `$${formatNumberWithCommas(amount.toFixed(2))}`;
             }
+        }
+
+        // Handle input formatting with commas
+        function formatInvestmentInput() {
+            const input = document.getElementById('investedInput');
+            let value = input.value.replace(/[^\d.]/g, ''); // Remove everything except digits and decimal point
+            
+            // Handle decimal point
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Format the integer part with commas
+            if (parts[0]) {
+                parts[0] = formatNumberWithCommas(parts[0]);
+                value = parts.join('.');
+            }
+            
+            input.value = value;
         }
 
         function addNote() {
@@ -352,7 +383,7 @@
             const investedInput = document.getElementById('investedInput');
             
             const noteText = noteInput.value.trim();
-            const investedAmount = parseFloat(investedInput.value) || 0;
+            const investedAmount = parseNumberFromString(investedInput.value);
             
             if (!noteText) {
                 showStatus('Please enter a note!', 'error');
@@ -449,6 +480,9 @@
                 statusDiv.classList.remove('show');
             }, 3000);
         }
+
+        // Add event listeners for input formatting
+        document.getElementById('investedInput').addEventListener('input', formatInvestmentInput);
 
         // Allow Enter key to add note
         document.getElementById('noteInput').addEventListener('keypress', function(e) {
