@@ -337,6 +337,16 @@
             });
         }
 
+        function formatCurrency(amount) {
+            // If the amount is a whole number, display without decimals
+            if (amount % 1 === 0) {
+                return `$${amount.toLocaleString()}`;
+            } else {
+                // If it has decimals, show up to 2 decimal places
+                return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            }
+        }
+
         function addNote() {
             const noteInput = document.getElementById('noteInput');
             const investedInput = document.getElementById('investedInput');
@@ -375,7 +385,7 @@
                 row.innerHTML = `
                     <td>${note.datetime}</td>
                     <td>${note.note}</td>
-                    <td>$${note.invested.toFixed(2)}</td>
+                    <td>${formatCurrency(note.invested)}</td>
                     <td><button class="delete-btn" onclick="deleteNote(${note.id})">Delete</button></td>
                 `;
                 tbody.appendChild(row);
